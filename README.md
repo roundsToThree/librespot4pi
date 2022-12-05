@@ -17,5 +17,7 @@ Expect this to be in a usable state by early 2023.
 ## Software Used
 Typescript + NodeJS\
 Express framework with EJS\
+librespot-java
 
 ## Credits
+[librespot-java](https://github.com/librespot-org/librespot-java)
