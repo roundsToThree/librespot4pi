@@ -85,8 +85,8 @@ function createTimeIntervalString(time) {
     output = fixLength(time) % 60 + ':' + output;
     time /= 60;
     if (time >= 1)
-    output = fixLength(time) + ':' + output';
-    
+        output = fixLength(time) + ':' + output;
+
     return output;
 }
 
