@@ -58,9 +58,6 @@ function startLibrespot() {
     }
   });
 
-
-  setTimeout(()=>{startLibrespotHandler()}, 3000);
-
 }
 
 function startLibrespotHandler()  {
