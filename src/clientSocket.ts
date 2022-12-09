@@ -2,24 +2,65 @@
  * Functions relating to serving client requests
  */
 
-function notifyPlay() {
+import { WebSocket, WebSocketServer } from 'ws';
+import { Metadata } from './interfaces';
+
+// Create a websocket for the client to connect to
+const wss = new WebSocketServer({ port: 5001 });
+wss.on('connection', function connection(ws) {
+  ws.on('message', function message(data) {
+    console.log('received: %s', data);
+  });
+});
+
+function broadcastClients(data: any) {
+  wss.clients.forEach(function each(client) {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify(data));
+    }
+  });
+}
+
+export function notifyPlay(trackTime: number) {
+  broadcastClients({
+    side: 'server',
+    event: 'playbackResumed',
+    time: trackTime,
+  })
+}
+
+export function notifyPause(trackTime: number) {
+  broadcastClients({
+    side: 'server',
+    event: 'playbackPaused',
+    time: trackTime,
+  })
 
 }
 
-function notifyPause() {
-
+export function notifyTrackChanged(time: number) {
+  broadcastClients({
+    side: 'server',
+    event: 'trackChanged',
+    time: time,
+  })
 }
 
-function notifyTrackChanged() {
-
+export function notifyMetadata(metadata: Metadata) {
+  broadcastClients({
+    side: 'server',
+    event: 'metadata',
+    metadata: metadata,
+  })
 }
-function notifyTrackNext() {
 
-}
+// function notifyTrackNext() {
 
-function notifyTrackPrev() {
+// }
 
-}
+// function notifyTrackPrev() {
+
+// }
 
 /**
  * Update the frontend to a change in volume
