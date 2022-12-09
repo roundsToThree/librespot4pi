@@ -82,10 +82,10 @@ function createTimeIntervalString(time) {
     let output = '';
     output = fixLength(time % 60, 2);
     time /= 60;
-    output = fixLength(Math.round(time) % 60, 2) + ':' + output;
+    output = fixLength(Math.floor(time) % 60, 2) + ':' + output;
     time /= 60;
     if (time >= 1)
-        output = fixLength(time, 2) + ':' + output;
+        output = fixLength(Math.floor(time), 2) + ':' + output;
 
     return output;
 }
