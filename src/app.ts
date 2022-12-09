@@ -49,7 +49,7 @@ function startLibrespot() {
   });
   
   ws.on('message', function message(data) {
-    handleLibrespotEvent(data);
+    handleLibrespotEvent(data, Date.now());
   });
 
 }

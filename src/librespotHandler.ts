@@ -2,15 +2,14 @@
  * Handles LibreSpot based events and converts them to generic events handled by the frontend
  */
 
-async function handleLibrespotEvent(event: any) {
+async function handleLibrespotEvent(event: any, time: number) {
     switch (event.event) {
         case 'contextChanged':
             // Not implemented
             break;
         case 'trackChanged':
             // Not implemented
-
-            // Set a 5s timeout to wait for metadata to become available
+            notifyTrackChanged();
             break;
         case 'playbackEnded':
             // Not implemented

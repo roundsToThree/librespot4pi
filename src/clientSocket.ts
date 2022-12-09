@@ -13,6 +13,11 @@ function notifyPause() {
 function notifyTrackChanged() {
 
 }
+
+function notifyMetadata(){
+
+}
+
 function notifyTrackNext() {
 
 }
