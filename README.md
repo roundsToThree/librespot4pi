@@ -14,6 +14,8 @@ Code may (or may not) yet be available on the repo, likewise for a disk image/co
 Expect this to be in a usable state by early 2023.
 ## Demo 
 ![Image of the connect page](https://github.com/roundsToThree/librespot4pi/blob/main/demo0.jpg?raw=true)
+![Image of a song playing](https://github.com/roundsToThree/librespot4pi/blob/main/demo1.jpg?raw=true)
+![Image of ui controls](https://github.com/roundsToThree/librespot4pi/blob/main/demo2.jpg?raw=true)
 ## Software Used
 Typescript + NodeJS\
 Express framework with EJS\
