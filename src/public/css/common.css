@@ -17,10 +17,14 @@ body {
     align-items: center;
     justify-content: center;
     overflow: hidden;
-
+    margin: 0;
     /* Univeral font */
     font-family: Roboto;
     /* -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif; */
+}
+
+main {
+    overflow: hidden;
 }
 
 .main-container {
@@ -30,6 +34,7 @@ body {
     font-weight: 400;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 

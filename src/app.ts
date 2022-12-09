@@ -3,6 +3,9 @@
 import express, { Express, Request, Response } from 'express';
 import child_process from 'child_process';
 import WebSocket from 'ws';
+import kill from 'tree-kill';
+import path from 'path';
+import { handleLibrespotEvent } from './librespotHandler';
 
 
 const app = express();
@@ -12,10 +15,15 @@ const port: number = 5000;
 let librespotService;
 
 app.set('view engine', 'ejs');
-app.use('/', express.static('public'));
+app.set('views', path.join(__dirname, 'views'))
+app.use('/', express.static('src/public'));
 
 app.get('/', (req: Request, res: Response) => {
   res.render('pages/main');
+});
+
+app.get('/player', (req: Request, res: Response) => {
+  res.render('pages/player');
 });
 
 app.listen(port, () => {
@@ -27,8 +35,10 @@ process.on('SIGINT', () => {
   console.log('Stopping rpispot ...');
   console.log('Stopping librespot service');
   librespotService.stdin.pause();
-  librespotService.kill('SIGTERM');
-  process.exit(0);
+  console.log(librespotService.pid);
+  kill(librespotService.pid, 'SIGKILL', () => {
+    process.exit(0);
+  });
 });
 
 startLibrespot();
@@ -40,15 +50,29 @@ function startLibrespot() {
     console.error(`Librespot failed to start! ${code}`);
     throw Error('Failed to start Librespot, check to see if it is not already running!');
   });
+  librespotService.stdout.setEncoding('utf-8');
+  librespotService.stdout.on('data', (code: string) => {
+    if(code.includes('Server started on port ')) {
+      startLibrespotHandler();
+      librespotService.stdout.removeAllListeners('data');
+    }
+  });
 
 
+  setTimeout(()=>{startLibrespotHandler()}, 3000);
+
+}
+
+function startLibrespotHandler()  {
   const ws = new WebSocket('ws://0.0.0.0:24879/events');
 
   ws.on('open', function open() {
     ws.send('something');
   });
-  
-  ws.on('message', function message(data) {
+
+  ws.on('message', (message: string) => {
+    const data: any = JSON.parse(message);
+    console.dir(data);
     handleLibrespotEvent(data, Date.now());
   });
 

@@ -1,0 +1,51 @@
+<%- include('../partials/head'); %>
+
+    <main>
+
+        <body>
+            <div class="main-container">
+                <div class="background-container" id="background-images">
+                    <img class="background-image selected"
+                        src="https://i.scdn.co/image/ab67616d0000b273212dadb7e649ee6194692527">
+                </div>
+                <div class="player-container">
+                    <div class="player-inner-container">
+                        <div class="player-left">
+                            <div id="cover-images">
+                                <img class="cover-photo selected" crossorigin="anonymous" .
+                                    src="https://i.scdn.co/image/ab67616d0000b273212dadb7e649ee6194692527">
+                            </div>
+                        </div>
+                        <div class="player-right">
+                            <span id="trackName">Patagonia</span>
+                            <span id="albumName">Patagonia</span>
+                            <span id="duration"></span>
+                            <div class="player-controls">
+                                <span class="material-symbols-outlined">
+                                    skip_previous
+                                </span>
+                                <span class="material-symbols-outlined">
+                                    pause
+                                </span>
+                                <span class="material-symbols-outlined">
+                                    skip_next
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="player-lower">
+
+
+                        <div class="player-timeline">
+                            <span id="timelineCurrent">0:00</span>
+                            <input type="range" min="1" max="100" value="50" class="track-scrubber">
+                            <span id="timelineMax">3:39</span>
+                        </div>
+                    </div>
+
+
+                </div>
+
+            </div>
+        </body>
+    </main>
