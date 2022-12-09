@@ -34,8 +34,8 @@ socket.onmessage = (event) => {
 
             // artists.textContent = data.metadata.artists;
             name.textContent = data.metadata.trackName;
-            startingTime.textContent
-            duration.textContent = data.metadata.duration; albumName.textContent = data.metadata.albumName;
+            duration.textContent = createTimeIntervalString(data.metadata.duration); 
+            albumName.textContent = data.metadata.albumName;
 
             break;
     }
@@ -80,12 +80,12 @@ function setBackgroundImage(url, imagesContainer, className) {
  */
 function createTimeIntervalString(time) {
     let output = '';
-    output = fixLength(time) % 60;
+    output = fixLength(time, 2) % 60;
     time /= 60;
-    output = fixLength(time) % 60 + ':' + output;
+    output = fixLength(time, 2) % 60 + ':' + output;
     time /= 60;
     if (time >= 1)
-        output = fixLength(time) + ':' + output;
+        output = fixLength(time, 2) + ':' + output;
 
     return output;
 }
