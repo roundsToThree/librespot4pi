@@ -7,6 +7,7 @@ socket.onopen = function (e) {
 };
 
 let timelineInterval;
+let lastTrackTime = 0, lastTrackPause, trackPaused = false, trackDuration = 1;
 
 socket.onmessage = (event) => {
     const data = JSON.parse(event.data);
@@ -14,12 +15,22 @@ socket.onmessage = (event) => {
         case 'trackChanged':
             // Set the song to start now
             clearInterval(timelineInterval);
+            trackPaused = false;
+            lastTrackTime = 0;
+            lastTrackPause = data.time;
 
-            const startingTime = document.getElementById('timelineCurrent')
-            
+            const startingTime = document.getElementById('timelineCurrent');
+            const trackScrubber = document.querySelector('.track-scrubber');
+
             timelineInterval = setInterval(() => {
-                startingTime.textContent = createTimeIntervalString((Date.now() - data.time)/1000)
-            }, 500);
+                if (trackPaused) {
+                    lastTrackPause = Date.now();
+                    return;
+                }
+                const currentTrackTime = lastTrackTime + (Date.now() - lastTrackPause);
+                startingTime.textContent = createTimeIntervalString(currentTrackTime / 1000);
+                trackScrubber.value = currentTrackTime / trackDuration * 100;
+            }, 200);
             break;
         case 'metadata':
             // Set the cover photo
@@ -34,9 +45,21 @@ socket.onmessage = (event) => {
 
             // artists.textContent = data.metadata.artists;
             name.textContent = data.metadata.trackName;
-            duration.textContent = createTimeIntervalString(data.metadata.duration / 1000); 
+            trackDuration = data.metadata.duration;
+            duration.textContent = createTimeIntervalString(trackDuration / 1000);
             albumName.textContent = data.metadata.albumName;
 
+            break;
+
+        case 'playbackPaused':
+            trackPaused = true;
+            lastTrackTime = data.time;
+            lastTrackPause = Date.now();
+            break;
+        case 'playbackResumed':
+            trackPaused = false;
+            lastTrackTime = data.time;
+            lastTrackPause = Date.now();
             break;
     }
 };
@@ -98,5 +121,12 @@ function createTimeIntervalString(time) {
  * @returns {string} A 0 padded number string
  */
 function fixLength(number, digits) {
-    return Math.round(number).toLocaleString(undefined, {minimumIntegerDigits: digits})
+    return Math.round(number).toLocaleString(undefined, { minimumIntegerDigits: digits })
+}
+
+function toggleControls() {
+    // Toggle player controls
+    document.querySelector('.player-controls').classList.toggle('hidden');
+    // Toggle image size
+    [...document.querySelectorAll('.cover-photo')].forEach(element => element.classList.toggle('minimised'));
 }

@@ -1,7 +1,7 @@
 /**
  * Handles LibreSpot based events and converts them to generic events handled by the frontend
  */
-import {notifyMetadata, notifyTrackChanged} from './clientSocket'
+import {notifyMetadata, notifyPause, notifyPlay, notifyTrackChanged} from './clientSocket'
 
 export async function handleLibrespotEvent(event: any, time: number) {
     switch (event.event) {
@@ -16,10 +16,10 @@ export async function handleLibrespotEvent(event: any, time: number) {
             // Not implemented
             break;
         case 'playbackPaused':
-            // Not implemented
+            notifyPause(event.trackTime);
             break;
         case 'playbackResumed':
-            // Not implemented
+            notifyPlay(event.trackTime);
             break;
         case 'volumeChanged':
             // Not implemented

@@ -21,11 +21,20 @@ function broadcastClients(data: any) {
   });
 }
 
-function notifyPlay() {
-
+export function notifyPlay(trackTime: number) {
+  broadcastClients({
+    side: 'server',
+    event: 'playbackResumed',
+    time: trackTime,
+  })
 }
 
-function notifyPause() {
+export function notifyPause(trackTime: number) {
+  broadcastClients({
+    side: 'server',
+    event: 'playbackPaused',
+    time: trackTime,
+  })
 
 }
 
