@@ -18,7 +18,7 @@ socket.onmessage = (event) => {
             const startingTime = document.getElementById('timelineCurrent')
             
             timelineInterval = setInterval(() => {
-                startingTime.textContent = createTimeIntervalString((data.time - Date.now())/1000)
+                startingTime.textContent = createTimeIntervalString((Date.now() - data.time)/1000)
             }, 500);
             break;
         case 'metadata':
@@ -34,7 +34,7 @@ socket.onmessage = (event) => {
 
             // artists.textContent = data.metadata.artists;
             name.textContent = data.metadata.trackName;
-            duration.textContent = createTimeIntervalString(data.metadata.duration); 
+            duration.textContent = createTimeIntervalString(data.metadata.duration / 1000); 
             albumName.textContent = data.metadata.albumName;
 
             break;
@@ -80,9 +80,9 @@ function setBackgroundImage(url, imagesContainer, className) {
  */
 function createTimeIntervalString(time) {
     let output = '';
-    output = fixLength(time, 2) % 60;
+    output = fixLength(time % 60, 2);
     time /= 60;
-    output = fixLength(time, 2) % 60 + ':' + output;
+    output = fixLength(time % 60, 2) + ':' + output;
     time /= 60;
     if (time >= 1)
         output = fixLength(time, 2) + ':' + output;
