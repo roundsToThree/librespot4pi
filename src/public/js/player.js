@@ -7,7 +7,7 @@ socket.onopen = function (e) {
 };
 
 let timelineInterval;
-let lastTrackTime = 0, lastTrackPause, trackPaused = false, trackDuration = 1;
+let lastTrackTime = 0, lastTrackPause, trackPaused = false;
 
 socket.onmessage = (event) => {
     const data = JSON.parse(event.data);
@@ -27,9 +27,9 @@ socket.onmessage = (event) => {
                     lastTrackPause = Date.now();
                     return;
                 }
-                const currentTrackTime = lastTrackTime + (Date.now() - lastTrackPause);
-                startingTime.textContent = createTimeIntervalString(currentTrackTime / 1000);
-                trackScrubber.value = currentTrackTime / trackDuration * 100;
+                const currentTrackTime = (lastTrackTime + (Date.now() - lastTrackPause)) /1000;
+                startingTime.textContent = createTimeIntervalString(currentTrackTime);
+                trackScrubber.value = currentTrackTime
             }, 200);
             break;
         case 'metadata':
@@ -45,10 +45,11 @@ socket.onmessage = (event) => {
 
             // artists.textContent = data.metadata.artists;
             name.textContent = data.metadata.trackName;
-            trackDuration = data.metadata.duration;
-            duration.textContent = createTimeIntervalString(trackDuration / 1000);
+            duration.textContent = createTimeIntervalString(data.metadata.duration / 1000);
             albumName.textContent = data.metadata.albumName;
 
+            // Set the range slider duration
+            document.querySelector('.track-scrubber').max = data.metadata.duration / 1000;
             break;
 
         case 'playbackPaused':
