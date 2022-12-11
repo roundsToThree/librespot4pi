@@ -27,7 +27,7 @@ socket.onmessage = (event) => {
                     lastTrackPause = Date.now();
                     return;
                 }
-                const currentTrackTime = (lastTrackTime + (Date.now() - lastTrackPause)) /1000;
+                const currentTrackTime = (lastTrackTime + (Date.now() - lastTrackPause)) / 1000;
                 startingTime.textContent = createTimeIntervalString(currentTrackTime);
                 trackScrubber.value = currentTrackTime
             }, 200);
@@ -75,6 +75,13 @@ socket.onerror = function (error) {
 };
 
 function setBackgroundImage(url, imagesContainer, className) {
+
+    // Add a new image to be selected
+    const image = document.createElement('img');
+    image.src = url;
+    image.classList.add(className);
+    image.setAttribute('crossorigin', 'anonymous');
+
     // Check if background is dfferent
     if (imagesContainer.querySelector('.selected').src === url)
         return;
@@ -82,14 +89,14 @@ function setBackgroundImage(url, imagesContainer, className) {
     [...imagesContainer.children].forEach((item) => {
         if (item.classList.contains('selected')) item.classList.remove('selected')
         else item.remove()
+
+        // Copy minimised attribute to new image
+        if (item.classList.contains('minimised')) image.classList.add('minimised')
+
     });
 
-    // Add a new image to be selected
-    const image = document.createElement('img');
-    image.src = url;
-    image.classList.add(className);
-    image.setAttribute('crossorigin', 'anonymous');
     imagesContainer.appendChild(image);
+
     // Wait a moment to start the fade in transition
     setTimeout(() => image.classList.add('selected'), 0);
 
@@ -125,9 +132,25 @@ function fixLength(number, digits) {
     return Math.round(number).toLocaleString(undefined, { minimumIntegerDigits: digits })
 }
 
+
+let controlsTimeout;
+function showControls() {
+    clearTimeout(controlsTimeout);
+    // Toggle them and set a timeout to close them after 5 seconds of no input
+    toggleControls();
+    setTimeout(() => hideControls(), 5000);
+}
+
 function toggleControls() {
     // Toggle player controls
     document.querySelector('.player-controls').classList.toggle('hidden');
     // Toggle image size
     [...document.querySelectorAll('.cover-photo')].forEach(element => element.classList.toggle('minimised'));
+}
+
+function hideControls() {
+    // Toggle player controls
+    document.querySelector('.player-controls').classList.add('hidden');
+    // Toggle image size
+    [...document.querySelectorAll('.cover-photo')].forEach(element => element.classList.remove('minimised'));
 }
