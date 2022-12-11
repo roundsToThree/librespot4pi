@@ -27,18 +27,16 @@ app.get('/player', (req: Request, res: Response) => {
 });
 
 app.listen(port, () => {
-  console.log(`Starting Pispot Server ${port}`)
+  console.log(`Starting Web Server ${port}`)
 });
 
 // Handle shutdown gracefully
-process.on('SIGINT', () => {
-  console.log('Stopping rpispot ...');
+process.on('SIGINT', async () => {
+  console.log('Stopping librespot4Pi ...');
   console.log('Stopping librespot service');
   librespotService.stdin.pause();
-  console.log(librespotService.pid);
-  kill(librespotService.pid, 'SIGKILL', () => {
-    process.exit(0);
-  });
+  await kill(librespotService.pid, 'SIGKILL');
+  process.exit(0);
 });
 
 startLibrespot();
@@ -52,7 +50,7 @@ function startLibrespot() {
   });
   librespotService.stdout.setEncoding('utf-8');
   librespotService.stdout.on('data', (code: string) => {
-    if(code.includes('Server started on port ')) {
+    if (code.includes('Server started on port ')) {
       startLibrespotHandler();
       librespotService.stdout.removeAllListeners('data');
     }
@@ -60,7 +58,7 @@ function startLibrespot() {
 
 }
 
-function startLibrespotHandler()  {
+function startLibrespotHandler() {
   const ws = new WebSocket('ws://0.0.0.0:24879/events');
 
   ws.on('open', function open() {
@@ -74,20 +72,3 @@ function startLibrespotHandler()  {
   });
 
 }
-
-// // loadTrackData();
-// async function loadTrackData() {
-//   const opt = {
-//     method: 'GET',
-//     headers: {
-//       Accept: 'application/json',
-//       'Content-Type': 'application/json',
-//       Authorization: 'Bearer BQA0Qs2C_2xmhOUWfzWOBw_Luc4uxl1nhwxlBBql5FNA63MgNaqbvHmJ0CBTkzdQi5MOmnoLam50mdmu7UCe4S8Njgu_W9QyolABTsqRO1t6YJi_x6iaaz3W48U0CFGrZwTcqhPwgLcogzXZ_evuqux3Jd33VbgrqoCBhNKMW1kzEZSC5w',
-//     }
-//   };
-
-//   const response = await fetch('https://api.spotify.com/v1/tracks/73QSYYgsMuF6I7aiLFDuvG?market=AU', opt);
-//   const data = await response.json();
-
-//   console.dir(data);
-// }
