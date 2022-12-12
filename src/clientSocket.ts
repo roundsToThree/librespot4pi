@@ -4,12 +4,51 @@
 
 import { WebSocket, WebSocketServer } from 'ws';
 import { Metadata } from './interfaces';
+import axios from 'axios';
+import { config } from './config.json';
+
+/**
+ * A wrapper for sending POST requests
+ * 
+ * @param {string} url The url of the resource
+ * @param {any} body The JSON content of the body
+ */
+function sendPOST(url: string, endpoint: string, body: any) {
+  //todo: handle responses appropriately
+  axios.post(url + endpoint, body)
+    .then(function (response) {
+      console.log(response);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+}
 
 // Create a websocket for the client to connect to
 const wss = new WebSocketServer({ port: 5001 });
 wss.on('connection', function connection(ws) {
   ws.on('message', function message(data) {
-    console.log('received: %s', data);
+    // Attempt to parse content
+    try {
+      data = JSON.parse(data);
+    } catch {
+      console.error('Invalid request recieved, Ignoring...');
+      return;
+    }
+    // Interpret client only messages
+    if (data?.side === 'client') {
+      switch (data?.event) {
+        case 'playbackPaused':
+          pausePlayback();
+          break;
+        case 'playbackResumed':
+          resumePlayback();
+          break;
+        case 'trackSeeked':
+          seekTrack(data?.time);
+          break;
+      }
+    }
   });
 });
 
@@ -35,7 +74,14 @@ export function notifyPause(trackTime: number) {
     event: 'playbackPaused',
     time: trackTime,
   })
+}
 
+export function notifySeek(trackTime: number) {
+  broadcastClients({
+    side: 'server',
+    event: 'trackSeeked',
+    time: trackTime,
+  })
 }
 
 export function notifyTrackChanged(time: number) {
@@ -63,6 +109,7 @@ export function notifyMetadata(metadata: Metadata) {
 // }
 
 /**
+ * [EVENT]
  * Update the frontend to a change in volume
  * 
  * @param {number} volume A number between 0 - 100 representing new volume
@@ -71,6 +118,38 @@ function notifyVolumeChange(volume: number) {
 
 }
 
+/**
+ * [ACTION]
+ * Called from a client issued websocket (typically), 
+ * Requests the playback to be paused
+ * 
+ * Only supports Librespot for now
+ */
+function pausePlayback() {
+  sendPOST(config.Librespot.api_url, '/player/pause', {});
+}
+
+/**
+ * [ACTION]
+ * Called from a client issued websocket (typically), 
+ * Requests the playback to be resumed
+ * 
+ * Only supports Librespot for now
+ */
+function resumePlayback() {
+  sendPOST(config.Librespot.api_url, '/player/resume', {});
+}
+
+/**
+ * [ACTION]
+ * Called from a client issued websocket (typically), 
+ * Requests to seek the track
+ * 
+ * Only supports Librespot for now
+ */
+function seekTrack(trackTime: number) {
+  sendPOST(config.Librespot.api_url, '/player/seek?pos=' + trackTime, {});
+}
 /*
 Events
 { event: 'sessionChanged', username: 'johnsakoutis' }

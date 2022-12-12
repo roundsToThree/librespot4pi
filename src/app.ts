@@ -6,7 +6,7 @@ import WebSocket from 'ws';
 import kill from 'tree-kill';
 import path from 'path';
 import { handleLibrespotEvent } from './librespotHandler';
-
+import { config } from './config.json';
 
 const app = express();
 const port: number = 5000;
@@ -59,7 +59,7 @@ function startLibrespot() {
 }
 
 function startLibrespotHandler() {
-  const ws = new WebSocket('ws://0.0.0.0:24879/events');
+  const ws = new WebSocket(config.Librespot.event_url);
 
   ws.on('open', function open() {
     ws.send('something');

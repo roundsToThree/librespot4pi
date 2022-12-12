@@ -6,8 +6,13 @@ socket.onopen = function (e) {
     console.dir("[open] Connection established");
 };
 
-let timelineInterval;
-let lastTrackTime = 0, lastTrackPause, trackPaused = false;
+// App states
+let timelineInterval;       // Stores the interval that updates the "track progress bar"
+let 
+    lastTrackTime = 0,      // The last position in the song that the track was paused at (in ms)
+    lastTrackPause,         // The UNIX time the track was last paused at (in ms)
+    trackPaused = false;    // Whether the track is currently paused
+let trackSeeking = false;   // Whether the track is currently being seeked (dragged)
 
 socket.onmessage = (event) => {
     const data = JSON.parse(event.data);
@@ -23,11 +28,18 @@ socket.onmessage = (event) => {
             const trackScrubber = document.querySelector('.track-scrubber');
 
             timelineInterval = setInterval(() => {
+                if (trackSeeking)
+                    return;
+
                 if (trackPaused) {
                     lastTrackPause = Date.now();
                     return;
                 }
                 const currentTrackTime = (lastTrackTime + (Date.now() - lastTrackPause)) / 1000;
+                // Dont display anything past duration
+
+                if (currentTrackTime > trackScrubber.max)
+                    return;
                 startingTime.textContent = createTimeIntervalString(currentTrackTime);
                 trackScrubber.value = currentTrackTime
             }, 200);
@@ -58,6 +70,11 @@ socket.onmessage = (event) => {
             lastTrackPause = Date.now();
             break;
         case 'playbackResumed':
+            trackPaused = false;
+            lastTrackTime = data.time;
+            lastTrackPause = Date.now();
+            break;
+        case 'trackSeeked':
             trackPaused = false;
             lastTrackTime = data.time;
             lastTrackPause = Date.now();
@@ -153,4 +170,22 @@ function hideControls() {
     document.querySelector('.player-controls').classList.add('hidden');
     // Toggle image size
     [...document.querySelectorAll('.cover-photo')].forEach(element => element.classList.remove('minimised'));
+}
+
+/**
+ * An event triggered by scrubbing on the track timeline
+ */
+function trackScrubbing() {
+    trackSeeking = true;
+}
+
+/**
+ * An event triggered by the conclusion of scrubbing the track timeline
+ * 
+ * @param {Event} event 
+ */
+function trackScrubbed(event) {
+    trackSeeking = false;
+    // Request the seek from the server
+    socket.send(JSON.stringify({side: 'client', event: 'trackSeeked', time: event.target.value * 1000}));
 }

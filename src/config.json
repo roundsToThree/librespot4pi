@@ -1,0 +1,8 @@
+{
+    "config": {
+        "Librespot": {
+            "api_url": "http://localhost:24879",
+            "event_url": "ws://0.0.0.0:24879/events"
+        }
+    }
+}

@@ -28,7 +28,7 @@
 
                         <div class="player-timeline">
                             <span id="timelineCurrent">0:00</span>
-                            <input type="range" min="1" max="100" value="0" class="track-scrubber" onchange="trackScrubbed(event);">
+                            <input type="range" min="1" max="100" value="0" class="track-scrubber" oninput="trackScrubbing(event);" onchange="trackScrubbed(event);">
                             <span id="timelineMax">3:39</span>
                         </div>
 
