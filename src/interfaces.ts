@@ -7,10 +7,14 @@ export interface Metadata {
     coverUrl: string,
 }
 // UNKN is if the song was changed and not next/prev
-export type TrackDirection = 'PREV' | 'NEXT' | 'UNKN';
+// export type TrackDirection = 'PREV' | 'NEXT' | 'UNKN';
 
-export interface TrackUpdate {
-    direction: TrackDirection,
-    time: number,
+// export interface TrackUpdate {
+//     direction: TrackDirection,
+//     time: number,
+// }
+
+export interface Axios {
+    data: any,
+    status: number,
 }
-

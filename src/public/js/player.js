@@ -1,11 +1,3 @@
-
-// Open a websocket to the server to communicate on
-socket = new WebSocket('ws://' + window.location.hostname + ':5001');
-
-socket.onopen = function (e) {
-    console.dir("[open] Connection established");
-};
-
 // App states
 let timelineInterval;       // Stores the interval that updates the "track progress bar"
 let
@@ -14,82 +6,60 @@ let
     trackPaused = false;    // Whether the track is currently paused
 let trackSeeking = false;   // Whether the track is currently being seeked (dragged)
 
-socket.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    switch (data.event) {
-        case 'trackChanged':
-            // Set the song to start now
-            clearInterval(timelineInterval);
-            trackPaused = false;
-            lastTrackTime = 0;
-            lastTrackPause = data.time;
 
-            const startingTime = document.getElementById('timelineCurrent');
-            const trackScrubber = document.querySelector('.track-scrubber');
+function trackChanged(data) {
+    // Set the song to start now
+    clearInterval(timelineInterval);
+    trackPaused = false;
+    lastTrackTime = 0;
+    lastTrackPause = data.time;
 
-            timelineInterval = setInterval(() => {
-                if (trackSeeking)
-                    return;
+    const startingTime = document.getElementById('timelineCurrent');
+    const trackScrubber = document.querySelector('.track-scrubber');
 
-                if (trackPaused) {
-                    lastTrackPause = Date.now();
-                    return;
-                }
-                const currentTrackTime = (lastTrackTime + (Date.now() - lastTrackPause)) / 1000;
-                // Dont display anything past duration
+    timelineInterval = setInterval(() => {
+        if (trackSeeking)
+            return;
 
-                if (currentTrackTime > trackScrubber.max)
-                    return;
-                startingTime.textContent = createTimeIntervalString(currentTrackTime);
-                trackScrubber.value = currentTrackTime
-            }, 200);
-            break;
-        case 'metadata':
-            // Set the cover photo
-            setBackgroundImage(data.metadata.coverUrl, document.getElementById('cover-images'), 'cover-photo');
-
-            // Set the background image
-            setBackgroundImage(data.metadata.coverUrl, document.getElementById('background-images'), 'background-image');
-
-            const name = document.getElementById('trackName')
-            const duration = document.getElementById('timelineMax')
-            const albumName = document.getElementById('albumName')
-
-            // artists.textContent = data.metadata.artists;
-            name.textContent = data.metadata.trackName;
-            duration.textContent = createTimeIntervalString(data.metadata.duration / 1000);
-            albumName.textContent = data.metadata.albumName;
-
-            // Set the range slider duration
-            document.querySelector('.track-scrubber').max = data.metadata.duration / 1000;
-            break;
-
-        case 'playbackPaused':
-            trackPaused = true;
-            lastTrackTime = data.time;
+        if (trackPaused) {
             lastTrackPause = Date.now();
-            break;
-        case 'playbackResumed':
-            trackPaused = false;
-            lastTrackTime = data.time;
-            lastTrackPause = Date.now();
-            break;
-        case 'trackSeeked':
-            trackPaused = false;
-            lastTrackTime = data.time;
-            lastTrackPause = Date.now();
-            break;
-    }
-};
+            return;
+        }
+        const currentTrackTime = (lastTrackTime + (Date.now() - lastTrackPause)) / 1000;
+        // Dont display anything past duration
 
-socket.onclose = function (event) {
-    console.dir(`[close] Connection closed, code=${event.code} reason=${event.reason}`);
+        if (currentTrackTime > trackScrubber.max)
+            return;
+        startingTime.textContent = createTimeIntervalString(currentTrackTime);
+        trackScrubber.value = currentTrackTime
+    }, 200);
+}
 
-};
+function metadataAvailable(data) {
+    // Set the cover photo
+    setBackgroundImage(data.metadata.coverUrl, document.getElementById('cover-images'), 'cover-photo');
 
-socket.onerror = function (error) {
-    console.dir(`[error]`);
-};
+    // Set the background image
+    setBackgroundImage(data.metadata.coverUrl, document.getElementById('background-images'), 'background-image');
+
+    const name = document.getElementById('trackName')
+    const duration = document.getElementById('timelineMax')
+    const albumName = document.getElementById('albumName')
+
+    // artists.textContent = data.metadata.artists;
+    name.textContent = data.metadata.trackName;
+    duration.textContent = createTimeIntervalString(data.metadata.duration / 1000);
+    albumName.textContent = data.metadata.albumName;
+
+    // Set the range slider duration
+    document.querySelector('.track-scrubber').max = data.metadata.duration / 1000;
+}
+
+function playbackPaused(data) {
+    trackPaused = true;
+    lastTrackTime = data.time;
+    lastTrackPause = Date.now();
+}
 
 function setBackgroundImage(url, imagesContainer, className) {
 
@@ -116,7 +86,18 @@ function setBackgroundImage(url, imagesContainer, className) {
 
     // Wait a moment to start the fade in transition
     setTimeout(() => image.classList.add('selected'), 0);
+}
 
+function playbackResumed(data) {
+    trackPaused = false;
+    lastTrackTime = data.time;
+    lastTrackPause = Date.now();
+}
+
+function trackSeeked(data) {
+    trackPaused = false;
+    lastTrackTime = data.time;
+    lastTrackPause = Date.now();
 }
 
 /**

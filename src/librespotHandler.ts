@@ -1,7 +1,7 @@
 /**
  * Handles LibreSpot based events and converts them to generic events handled by the frontend
  */
-import {notifyMetadata, notifyPause, notifyPlay, notifySeek, notifyTrackChanged} from './clientSocket'
+import {notifyMetadata, notifyPause, notifyPlay, notifyTrackSeeked, notifyTrackChanged} from './clientSocket'
 
 export async function handleLibrespotEvent(event: any, time: number) {
     switch (event.event) {
@@ -25,7 +25,7 @@ export async function handleLibrespotEvent(event: any, time: number) {
             // Not implemented
             break;
         case 'trackSeeked':
-            notifySeek(event.trackTime);
+            notifyTrackSeeked(event.trackTime);
             break;
         case 'metadataAvailable':
             // Get the largest cover image
