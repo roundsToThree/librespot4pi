@@ -22,8 +22,16 @@ Typescript + NodeJS\
 Express framework with EJS\
 librespot-java
 ## Extra config required
+**Arguments (Prefered)**\
+Launch Chromium with the following arguments:\
+``chromium --kiosk --incognito --disable-pinch --overscroll-history-navigation=0 http://localhost:5000``\
+Alternatively you can use flags to launch the browser\
+**Flags**\
 Ensure this flag is set to disabled on the chromium browser (Otherwise sliding the range on a touchscreen will go back a page)\
 ``chrome://flags/#overscroll-history-navigation``\
+Also set the pinch flag to disabled (broken in older chromium versions)\
+``chrome://flags/#enable-pinch``\
+**System configuration**\
 Also ensure you add this to the xserver config located at ``/etc/lightdm/lightdm.conf``:\
 ``xserver-command=X -bs -core -nocursor``\
 This hides the cursor from the display so that it does not flicker in and out during use.
