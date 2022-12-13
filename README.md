@@ -7,9 +7,10 @@ Raspberry Pi 7" Touch Display\
 [OPT] DAC+ HAT
 ## Applicaton/Intention
 This is intented to be used on premises that are impractical to be tied to a certain Spotify account (Like a public space or workplace).\
-Using Spotify Connect with Librespot, anyone can connect to the device and navigate it (ideally) like a Google Nest Hub.
+Using Spotify Connect with Librespot, anyone can connect to the device and navigate it (ideally) like a Google Nest Hub.\
+Due to the use of the amazing [librespot-java](https://github.com/librespot-org/librespot-java), play/pause/seeks from the ui are more responsive than the Spotify phone app!
 ## Progress
-Currently only the main landing page has been designed (its only been a few hrs) and the api mapped out and experimented with.\
+Currently most of the core UI has been constructed, extra features like the user's playlists and search functionality has not yet been completed.\
 Code may (or may not) yet be available on the repo, likewise for a disk image/container.\
 Expect this to be in a usable state by early 2023.
 ## Demo 
@@ -20,6 +21,8 @@ Expect this to be in a usable state by early 2023.
 Typescript + NodeJS\
 Express framework with EJS\
 librespot-java
-
+## Extra config required
+Ensure this flag is set to disabled on the chromium browser (Otherwise sliding the range on a touchscreen will go back a page)\
+``chrome://flags/#overscroll-history-navigation``
 ## Credits
 [librespot-java](https://github.com/librespot-org/librespot-java)
