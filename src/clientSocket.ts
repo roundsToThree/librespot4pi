@@ -47,6 +47,12 @@ wss.on('connection', function connection(ws) {
         case 'trackSeeked':
           seekTrack(data?.time);
           break;
+        case 'nextTrack':
+          nextTrack();
+          break;
+        case 'previousTrack':
+          previousTrack();
+          break;
       }
     }
   });
@@ -149,6 +155,28 @@ function resumePlayback() {
  */
 function seekTrack(trackTime: number) {
   sendPOST(config.Librespot.api_url, '/player/seek?pos=' + trackTime, {});
+}
+
+/**
+ * [ACTION]
+ * Called from a client issued websocket (typically), 
+ * Requests for the next track to be played
+ * 
+ * Only supports Librespot for now
+ */
+function nextTrack() {
+  sendPOST(config.Librespot.api_url, '/player/next', {});
+}
+
+/**
+ * [ACTION]
+ * Called from a client issued websocket (typically), 
+ * Requests for the pervious track to be played
+ * 
+ * Only supports Librespot for now
+ */
+function previousTrack() {
+  sendPOST(config.Librespot.api_url, '/player/prev', {});
 }
 /*
 Events

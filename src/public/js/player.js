@@ -8,7 +8,7 @@ socket.onopen = function (e) {
 
 // App states
 let timelineInterval;       // Stores the interval that updates the "track progress bar"
-let 
+let
     lastTrackTime = 0,      // The last position in the song that the track was paused at (in ms)
     lastTrackPause,         // The UNIX time the track was last paused at (in ms)
     trackPaused = false;    // Whether the track is currently paused
@@ -155,7 +155,7 @@ function showControls() {
     clearTimeout(controlsTimeout);
     // Toggle them and set a timeout to close them after 5 seconds of no input
     toggleControls();
-    setTimeout(() => hideControls(), 5000);
+    controlsTimeout = setTimeout(() => hideControls(), 5000);
 }
 
 function toggleControls() {
@@ -185,7 +185,44 @@ function trackScrubbing() {
  * @param {Event} event 
  */
 function trackScrubbed(event) {
+    keepControlsOpen(event);
     trackSeeking = false;
     // Request the seek from the server
-    socket.send(JSON.stringify({side: 'client', event: 'trackSeeked', time: event.target.value * 1000}));
+    socket.send(JSON.stringify({ side: 'client', event: 'trackSeeked', time: event.target.value * 1000 }));
+}
+
+function nextTrack(event) {
+    keepControlsOpen(event);
+    socket.send(JSON.stringify({ side: 'client', event: 'nextTrack' }));
+}
+
+function previousTrack(event) {
+    keepControlsOpen(event);
+    socket.send(JSON.stringify({ side: 'client', event: 'previousTrack' }));
+}
+
+function togglePause(event, element) {
+    keepControlsOpen(event);
+
+    // Check current state (use includes as textcontent may have whitespace)
+    if (element.textContent.includes('pause')) {
+        element.textContent = 'play_arrow';
+        socket.send(JSON.stringify({ side: 'client', event: 'playbackPaused' }));
+    } else {
+        element.textContent = 'pause';
+        socket.send(JSON.stringify({ side: 'client', event: 'playbackResumed' }));
+    }
+}
+
+/**
+ * Prevents a pointer event from propagating and closing the controls and also resets the timeout to keep the controls open
+ * 
+ * @param {Event} event The pointer event that was triggered on the button that called this function
+ */
+function keepControlsOpen(event) {
+    // Prevent the controls from closing
+    event.stopPropagation();
+    // Reset the timeout
+    clearTimeout(controlsTimeout);
+    controlsTimeout = setTimeout(() => hideControls(), 5000);
 }

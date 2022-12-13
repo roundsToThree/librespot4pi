@@ -3,7 +3,7 @@
     <main>
 
         <body>
-            <div class="main-container" onclick="showControls()">
+            <div class="main-container" onclick="toggleControls()">
                 <div class="background-container" id="background-images">
                     <img class="background-image selected"
                         src="https://i.scdn.co/image/ab67616d0000b273212dadb7e649ee6194692527">
@@ -33,13 +33,13 @@
                         </div>
 
                         <div class="player-controls hidden">
-                            <span class="material-symbols-outlined">
+                            <span class="material-symbols-outlined" onclick="previousTrack(event)">
                                 skip_previous
                             </span>
-                            <span class="material-symbols-outlined">
+                            <span class="material-symbols-outlined" onclick="togglePause(event, this)">
                                 pause
                             </span>
-                            <span class="material-symbols-outlined">
+                            <span class="material-symbols-outlined" onclick="nextTrack(event)">
                                 skip_next
                             </span>
                         </div>
