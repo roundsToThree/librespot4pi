@@ -18,9 +18,9 @@ body {
     justify-content: center;
     overflow: hidden;
     margin: 0;
-    /* Univeral font */
     font-family: Roboto;
-    /* -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif; */
+
+    cursor: none;
 }
 
 main {
@@ -56,4 +56,8 @@ main {
 .highlight span {
     font-weight: bold;
     color: var(--highlight-dark);
+}
+
+.page_hidden {
+    display: none;
 }
