@@ -23,6 +23,9 @@ Express framework with EJS\
 librespot-java
 ## Extra config required
 Ensure this flag is set to disabled on the chromium browser (Otherwise sliding the range on a touchscreen will go back a page)\
-``chrome://flags/#overscroll-history-navigation``
+``chrome://flags/#overscroll-history-navigation``\
+Also ensure you add this to the xserver config located at ``/etc/lightdm/lightdm.conf``:\
+``xserver-command=X -bs -core -nocursor``\
+This hides the cursor from the display so that it does not flicker in and out during use.
 ## Credits
 [librespot-java](https://github.com/librespot-org/librespot-java)
