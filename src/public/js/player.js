@@ -6,33 +6,18 @@ let
     trackPaused = false;    // Whether the track is currently paused
 let trackSeeking = false;   // Whether the track is currently being seeked (dragged)
 
+// Player variables
+let trackName = '', trackDuration = -1;
+
 
 function trackChanged(data) {
     // Set the song to start now
-    clearInterval(timelineInterval);
+
     trackPaused = false;
     lastTrackTime = 0;
     lastTrackPause = data.time;
-
-    const startingTime = document.getElementById('timelineCurrent');
-    const trackScrubber = document.querySelector('.track-scrubber');
-
-    timelineInterval = setInterval(() => {
-        if (trackSeeking)
-            return;
-
-        if (trackPaused) {
-            lastTrackPause = Date.now();
-            return;
-        }
-        const currentTrackTime = (lastTrackTime + (Date.now() - lastTrackPause)) / 1000;
-        // Dont display anything past duration
-
-        if (currentTrackTime > trackScrubber.max)
-            return;
-        startingTime.textContent = createTimeIntervalString(currentTrackTime);
-        trackScrubber.value = currentTrackTime
-    }, 200);
+    
+    playbackResumed();
 }
 
 function metadataAvailable(data) {
@@ -47,7 +32,8 @@ function metadataAvailable(data) {
     const albumName = document.getElementById('albumName')
 
     // artists.textContent = data.metadata.artists;
-    name.textContent = data.metadata.trackName;
+    trackName = name.textContent = data.metadata.trackName;
+    trackDuration = data.metadata.duration;
     duration.textContent = createTimeIntervalString(data.metadata.duration / 1000);
     albumName.textContent = data.metadata.albumName;
 
@@ -89,9 +75,36 @@ function setBackgroundImage(url, imagesContainer, className) {
 }
 
 function playbackResumed(data) {
-    trackPaused = false;
-    lastTrackTime = data.time;
-    lastTrackPause = Date.now();
+	// If from the ws playbackResumed message, fill data, but in general this function can be called from anywhere to force
+	// the UI to resume playback
+	if(data != null) {
+		trackPaused = false;
+		lastTrackTime = data.time;
+		lastTrackPause = Date.now();
+    }
+
+	// Reset Timeline Interval
+    clearInterval(timelineInterval);
+
+	const startingTime = document.getElementById('timelineCurrent');
+	const trackScrubber = document.querySelector('.track-scrubber');
+
+	timelineInterval = setInterval(() => {
+	    if (trackSeeking)
+	        return;
+
+	    if (trackPaused) {
+	        lastTrackPause = Date.now();
+	        return;
+	    }
+	    const currentTrackTime = (lastTrackTime + (Date.now() - lastTrackPause)) / 1000;
+	    // Dont display anything past duration
+
+	    if (currentTrackTime > trackScrubber.max)
+	        return;
+	    startingTime.textContent = createTimeIntervalString(currentTrackTime);
+	    trackScrubber.value = currentTrackTime
+	}, 200);
 }
 
 function trackSeeked(data) {
@@ -196,6 +209,29 @@ function togglePause(event, element) {
 }
 
 /**
+* Called from the range inputs 'on input'
+*
+* @param {Element} element The range input itself
+*/
+function changeVolume(element) { 
+	const sp = new URLSearchParams(new URL(window.location.href).search);
+    const roomName = sp.get('room');
+	socket.send(JSON.stringify({ side: 'client', event: 'roomVolumeChanged', room: roomName, volume: element?.value}));
+}
+
+// To Websocket
+function requestVolume() { 
+	const sp = new URLSearchParams(new URL(window.location.href).search);
+    const roomName = sp.get('room');
+	socket.send(JSON.stringify({ side: 'client', event: 'getRoomVolume', room: roomName}));
+}
+
+// From WebSocket 
+function roomVolume(data) {
+	document.getElementById('volumeSlider').value = data?.volume;
+}
+
+/**
  * Prevents a pointer event from propagating and closing the controls and also resets the timeout to keep the controls open
  * 
  * @param {Event} event The pointer event that was triggered on the button that called this function
@@ -206,4 +242,39 @@ function keepControlsOpen(event) {
     // Reset the timeout
     clearTimeout(controlsTimeout);
     controlsTimeout = setTimeout(() => hideControls(), 5000);
+}
+
+function sinkBindings(data) {
+    let container = document.getElementsByClassName('source-list')[0];
+    container.innerHTML = '';
+    data.bindings.forEach(binding => {
+        const isThisRoom = binding.name == document.getElementById('serviceName').textContent;
+        container.innerHTML += `<div class="source">
+    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M680-80H280q-33 0-56.5-23.5T200-160v-640q0-33 23.5-56.5T280-880h400q33 0 56.5 23.5T760-800v640q0 33-23.5 56.5T680-80Zm0-80v-640H280v640h400ZM480-600q33 0 56.5-23.5T560-680q0-33-23.5-56.5T480-760q-33 0-56.5 23.5T400-680q0 33 23.5 56.5T480-600Zm0 400q66 0 113-47t47-113q0-66-47-113t-113-47q-66 0-113 47t-47 113q0 66 47 113t113 47Zm0-80q-33 0-56.5-23.5T400-360q0-33 23.5-56.5T480-440q33 0 56.5 23.5T560-360q0 33-23.5 56.5T480-280ZM280-800v640-640Z"/></svg>
+    <span ${isThisRoom ? 'class="currentSource"' : `onclick="changeSource('${binding.name}')"`}>${binding.name}</span>
+</div>`}
+    );
+
+    // If there is only one instance, hide it
+    if (data.bindings.length <= 1)
+        document.getElementsByClassName('select-source')[0].classList.add('hidden');
+    else
+        document.getElementsByClassName('select-source')[0].classList.remove('hidden');
+}
+
+async function changeSource(instanceName) {
+    const sp = new URLSearchParams(new URL(window.location.href).search);
+    const room = sp.get('room');
+    let res = await fetch(`/api/moveRoom?instanceName=${encodeURI(instanceName)}&roomName=${encodeURI(room)}`)
+    res = await res.json();
+
+    if (res.status == 'ok') {
+        let instanceNumber = (await (await fetch("/api/instanceFromRoom?room=" + encodeURI(room))).json())?.instanceNumber;
+
+        sendInitialised(instanceNumber);
+    } else {
+        alert('something went wrong with changing source');
+    }
+
+    closeSourceTray();
 }

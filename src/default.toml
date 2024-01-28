@@ -5,9 +5,9 @@ clientToken = ""
 ### Device ID (40 chars, leave empty for random)  ###
 deviceId = ""
 ### Device name ###
-deviceName = "librespot-java"
+deviceName = "librespot-java-config"
 ### Log level (OFF, FATAL, ERROR, WARN, INFO, DEBUG, TRACE, ALL) ###
-logLevel = "DEBUG"
+logLevel = "TRACE"
 ### Preferred locale ###
 preferredLocale = "en"
 
@@ -17,6 +17,7 @@ preferredLocale = "en"
 	# Cache enabled
 	enabled = true
 	doCleanUp = true
+
 ### Authentication ###
 [auth]
 	# Credentials file (JSON)
@@ -31,14 +32,17 @@ preferredLocale = "en"
 	strategy = "ZEROCONF"
 	# Spotify username (BLOB, USER_PASS only)
 	username = ""
+
 ### Preload ###
 [preload]
 	# Preload enabled
 	enabled = true
+
 ### Network ###
 [network]
 	# If ping isn't received within this amount of seconds, reconnect
 	connectionTimeout = 10
+
 ### Proxy ###
 [proxy]
 	# Basic auth password
@@ -57,6 +61,7 @@ preferredLocale = "en"
 	enabled = false
 	# Basic auth username
 	username = ""
+
 ### Zeroconf ###
 [zeroconf]
 	# Listen on all interfaces (overrides `zeroconf.interfaces`)
@@ -65,6 +70,7 @@ preferredLocale = "en"
 	interfaces = ""
 	# Listen on this TCP port (`-1` for random)
 	listenPort = -1
+
 ### Shell ###
 [shell]
 	onTrackSeeked = ""
@@ -86,18 +92,21 @@ preferredLocale = "en"
 	onPlaybackPaused = ""
 	onInactiveSession = ""
 	onVolumeChanged = ""
+
 ### Time correction ###
 [time]
 	# Manual time correction in millis
 	manualCorrection = 0
 	# Time synchronization method (NTP, PING, MELODY, MANUAL)
 	synchronizationMethod = "NTP"
+
 ### API ###
 [api]
 	# API port (`api` module only)
 	port = 24879
 	# API listen interface (`api` module only)
 	host = "0.0.0.0"
+
 ### Player ###
 [player]
 	# Whether to apply the Spotify loudness normalisation
@@ -122,8 +131,6 @@ preferredLocale = "en"
 	output = "MIXER"
 	# Crossfade overlap time (in milliseconds)
 	crossfadeDuration = 0
-	# Whether to apply album gain (instead of track gain) for normalisation
-	useAlbumGain = false
 	# Audio output Java class name
 	outputClass = ""
 	# Whether the player should retry fetching a chuck if it fails
@@ -136,3 +143,4 @@ preferredLocale = "en"
 	volumeSteps = 64
 	# Log available mixers
 	logAvailableMixers = true
+

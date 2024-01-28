@@ -1,5 +1,6 @@
 :root {
     --background-dark: #282828;
+    --background-less-dark: #414141;
     /* --background-dark: #121212; */
     --foreground-dark: #fff;
     --highlight-dark: #1ed760;
@@ -60,4 +61,73 @@ main {
 
 .page_hidden {
     display: none;
+}
+
+/*
+.hidden {
+    display: none !important;
+}
+*/
+.select-source {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+
+.select-source svg {
+    filter: invert();
+    width: 2rem;
+    height: 2rem;
+}
+
+.source-tray {
+    position: absolute;
+    height: 100vh;
+    width: fit-content;
+    max-width: 50vw;
+    overflow: hidden;
+    top: 0;
+    right: 0;
+    background-color: var(--background-less-dark);
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding: 0.5rem;
+	
+	transition: right 0.5s;
+}
+
+.source-tray.hidden {
+	right: -51vw;
+}
+
+.source-list {
+	display: flex;
+	flex-direction: column;
+}
+
+.volume-tray {
+	margin-top: auto;
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.source {
+    display: flex;
+    flex-direction: row;
+    background-color: var(--background-dark);
+    margin: 0.5rem;
+    align-items: center;
+    border-radius: 4px;
+    padding: 0.2rem;
+}
+
+.source svg {
+    filter: invert();
+}
+
+.currentSource {
+    color: var(--highlight-dark);
 }

@@ -1,9 +1,27 @@
 {
     "config": {
-        "serviceName": "librespot-java",
-        "Librespot": {
-            "api_url": "http://localhost:24879",
-            "event_url": "ws://0.0.0.0:24879/events"
-        }
+        "librespot_jar": "src/librespot-api-1.6.4-SNAPSHOT.jar",
+        "instances": [
+            {
+                "name": "Test Instance 1",
+                "mixer": ""
+            },
+            {
+                "name": "Test Instance 2",
+                "mixer": ""
+            }
+        ],
+	"rooms": [
+	     {
+		"name": "Room 3",
+		"instance": "Test Instance 1",
+		"sink": "multichannel-output"
+	    },
+	   {
+		"name": "Room 4",
+		"instance": "Test Instance 1",
+		"sink": "Apple__Inc"
+		}
+	]
     }
 }
