@@ -8,7 +8,7 @@ let trackSeeking = false;   // Whether the track is currently being seeked (drag
 
 // Player variables
 let trackName = '', trackDuration = -1;
-
+let roomName;
 
 function trackChanged(data) {
     // Set the song to start now
@@ -173,6 +173,11 @@ function trackScrubbing() {
     trackSeeking = true;
 }
 
+function sendMessage(event, data) {
+	// Construct the packet
+    socket.send(JSON.stringify({ ...{side: 'client', event: event, room: roomName}, ...data}));
+}
+
 /**
  * An event triggered by the conclusion of scrubbing the track timeline
  * 
@@ -182,17 +187,20 @@ function trackScrubbed(event) {
     keepControlsOpen(event);
     trackSeeking = false;
     // Request the seek from the server
-    socket.send(JSON.stringify({ side: 'client', event: 'trackSeeked', time: event.target.value * 1000 }));
+    sendMessage('trackSeeked', { time: event.target.value * 1000 });
+//    socket.send(JSON.stringify({ side: 'client', event: 'trackSeeked', time: event.target.value * 1000 }));
 }
 
 function nextTrack(event) {
     keepControlsOpen(event);
-    socket.send(JSON.stringify({ side: 'client', event: 'nextTrack' }));
+    sendMessage('nextTrack');
+	//socket.send(JSON.stringify({ side: 'client', event: 'nextTrack' }));
 }
 
 function previousTrack(event) {
     keepControlsOpen(event);
-    socket.send(JSON.stringify({ side: 'client', event: 'previousTrack' }));
+    sendMessage('previousTrack');
+    //socket.send(JSON.stringify({ side: 'client', event: 'previousTrack' }));
 }
 
 function togglePause(event, element) {
@@ -201,10 +209,12 @@ function togglePause(event, element) {
     // Check current state (use includes as textcontent may have whitespace)
     if (element.textContent.includes('pause')) {
         element.textContent = 'play_arrow';
-        socket.send(JSON.stringify({ side: 'client', event: 'playbackPaused' }));
+        sendMessage('playbackPaused');
+        //socket.send(JSON.stringify({ side: 'client', event: 'playbackPaused' }));
     } else {
         element.textContent = 'pause';
-        socket.send(JSON.stringify({ side: 'client', event: 'playbackResumed' }));
+        sendMessage('playbackResumed');
+        //socket.send(JSON.stringify({ side: 'client', event: 'playbackResumed' }));
     }
 }
 
@@ -214,16 +224,18 @@ function togglePause(event, element) {
 * @param {Element} element The range input itself
 */
 function changeVolume(element) { 
-	const sp = new URLSearchParams(new URL(window.location.href).search);
-    const roomName = sp.get('room');
-	socket.send(JSON.stringify({ side: 'client', event: 'roomVolumeChanged', room: roomName, volume: element?.value}));
+	//const sp = new URLSearchParams(new URL(window.location.href).search);
+    //const roomName = sp.get('room');
+    sendMessage('roomVolumeChanged', {volume: element?.value});
+	//socket.send(JSON.stringify({ side: 'client', event: 'roomVolumeChanged', room: roomName, volume: element?.value}));
 }
 
 // To Websocket
 function requestVolume() { 
-	const sp = new URLSearchParams(new URL(window.location.href).search);
-    const roomName = sp.get('room');
-	socket.send(JSON.stringify({ side: 'client', event: 'getRoomVolume', room: roomName}));
+	//const sp = new URLSearchParams(new URL(window.location.href).search);
+    //const roomName = sp.get('room');
+    sendMessage('getRoomVolume');
+	//socket.send(JSON.stringify({ side: 'client', event: 'getRoomVolume', room: roomName}));
 }
 
 // From WebSocket 
@@ -263,13 +275,13 @@ function sinkBindings(data) {
 }
 
 async function changeSource(instanceName) {
-    const sp = new URLSearchParams(new URL(window.location.href).search);
-    const room = sp.get('room');
-    let res = await fetch(`/api/moveRoom?instanceName=${encodeURI(instanceName)}&roomName=${encodeURI(room)}`)
+    //const sp = new URLSearchParams(new URL(window.location.href).search);
+    //const room = sp.get('room');
+    let res = await fetch(`/api/moveRoom?instanceName=${encodeURI(instanceName)}&roomName=${encodeURI(roomName)}`)
     res = await res.json();
 
     if (res.status == 'ok') {
-        let instanceNumber = (await (await fetch("/api/instanceFromRoom?room=" + encodeURI(room))).json())?.instanceNumber;
+        let instanceNumber = (await (await fetch("/api/instanceFromRoom?room=" + encodeURI(roomName))).json())?.instanceNumber;
 
         sendInitialised(instanceNumber);
     } else {

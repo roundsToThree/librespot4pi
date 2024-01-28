@@ -7,7 +7,7 @@ import { Metadata, Axios } from './interfaces';
 import axios from 'axios';
 import { config } from './config.json';
 import { handleLibrespotEvent, getLibrespotWSPath, getLibrespotInstance, getLibrespotAPIPath } from './librespotHandler';
-import { getBindings, setRoomVolume, getRoomVolume } from './soundController';
+import { getBindings, setRoomVolume, getRoomVolume, instanceFromRoomName } from './soundController';
 
 /**
  * A wrapper for sending POST requests
@@ -46,8 +46,10 @@ wss.on('connection', function connection(ws) {
     // Interpret client only messages
     if (data?.side === 'client') {
       // Get the instance number if applicable
-      const instanceNumber: number = instanceNumberFromClient(ws);
-
+      const instanceNumber: number = instanceFromRoomName(data?.room);
+      console.log('instance number is: ' + instanceNumber);
+      if(instanceNumber == null || instanceNumber == -1)
+      	return;
       switch (data?.event) {
         case 'playbackPaused':
           pausePlayback(instanceNumber);
@@ -75,7 +77,7 @@ wss.on('connection', function connection(ws) {
 			}));
 	  		break;
         case 'clientInitialised':
-          clientInitialised(data?.instanceNumber, ws);
+          clientInitialised(data?.id, instanceNumber, ws);
           break;
       }
     }
@@ -85,11 +87,12 @@ wss.on('connection', function connection(ws) {
 let clients = [];
 
 function bindClient(instanceNumber: number, client: any) {
+  console.log('binding client ' + client.id + ' to inst ' + instanceNumber);
   if (instanceNumber == null || client == null)
     return;
   
   // If client is already bound, unbind
-  const oldIndx = clients.findIndex(inst => inst.includes(client));
+  const oldIndx = clients.findIndex(inst => inst.findIndex(c => c?.id == client?.id && c?.id != null) != -1);
   if (oldIndx != -1)
   	unbindClient(oldIndx, client);
     
@@ -97,12 +100,17 @@ function bindClient(instanceNumber: number, client: any) {
     clients[instanceNumber] = [];
   client.instanceNumber = instanceNumber;
   clients[instanceNumber].push(client);
+  
+    console.dir(clients[instanceNumber].map(c => c.id));
 }
 
 function unbindClient(instanceNumber: number, client: any) {
   // Janky lol
-  console.log("UNBINDING" + instanceNumber);
-  clients[instanceNumber] = clients[instanceNumber]?.filter(c => JSON.stringify(c) == JSON.stringify(client));
+  console.log("UNBINDING" + instanceNumber + " client " + client.id);
+  console.dir(clients[instanceNumber].map(c => c.id));
+  clients[instanceNumber] = clients[instanceNumber]?.filter(c => c?.id != client?.id);
+  console.log('aftr');
+  console.dir(clients[instanceNumber].map(c => c.id));
 }
 
 function instanceNumberFromClient(client: any): number {
@@ -121,12 +129,16 @@ function instanceNumberFromClient(client: any): number {
  * 
  * Only supports Librespot for now
  */
-async function clientInitialised(instanceNumber: number, client: any) {
+async function clientInitialised(id: number, instanceNumber: number, client: any) {
+  client.id = id;
+
+
   // Bind client to intsance number
   bindClient(instanceNumber, client);
   console.log('binding client to ' + instanceNumber);
   notifyServiceStarted(instanceNumber, getLibrespotInstance(instanceNumber)?.instanceName);
   // Status is 204 if there is no service running
+  console.log('apI path: ' + getLibrespotAPIPath(instanceNumber) + ':::: ' + (await sendGET(getLibrespotAPIPath(instanceNumber), '/instance'))?.status);
   if ((await sendGET(getLibrespotAPIPath(instanceNumber), '/instance'))?.status === 200) {
     let data: any = (await sendPOST(getLibrespotAPIPath(instanceNumber), '/player/current', {}))?.data;
 	
@@ -136,12 +148,10 @@ async function clientInitialised(instanceNumber: number, client: any) {
 
     notifyPlay(instanceNumber, data.trackTime);
   } else {
+  console.log('e');
     // Send client back to connect page.
-    // notifyUnloaded(instanceNumber);
-
-    // Unbind the client pair
-    unbindClient(instanceNumber, client);
-  }
+    notifyUnloaded(instanceNumber);
+}
 
   broadcastSinkBindings();
 }
@@ -296,8 +306,11 @@ function nextTrack(instanceNumber: number) {
  * 
  * Only supports Librespot for now
  */
-function previousTrack(instanceNumber: number) {
-  sendPOST(getLibrespotAPIPath(instanceNumber), '/player/prev', {});
+async function previousTrack(instanceNumber: number) {
+  await sendPOST(getLibrespotAPIPath(instanceNumber), '/player/prev', {});
+  // After this, also reset the play to the start
+  notifyTrackSeeked(instanceNumber, 0)
+  
 }
 
 /*

@@ -1,4 +1,7 @@
-
+// Generate random id
+const id = Math.round(Math.random() * 100000);
+    
+    
 // Open a websocket to the server to communicate on
 socket = new WebSocket('ws://' + window.location.hostname + ':5001');
 
@@ -14,7 +17,7 @@ socket.onopen = async function (e) {
 
     // Get page configuration
     let sp = new URLSearchParams(new URL(window.location.href).search);
-    let room = sp.get('room');
+    let room = roomName = sp.get('room'); //roomName is in player.js
     if (room == null) {
         alert('URL Parameters Missing! Please specify a "room" parameter in the search query')
         return;
@@ -79,11 +82,12 @@ socket.onerror = function (error) {
 
 // Determines whether the service has already connected / a song is already playing if the page has just reloaded
 function sendInitialised(intsanceNumber) {
-    socket.send(JSON.stringify({
+    sendMessage('clientInitialised', {id: id});
+   /* socket.send(JSON.stringify({
         side: 'client',
         event: 'clientInitialised',
         instanceNumber: intsanceNumber
-    }))
+    }))*/
 }
 
 /**
@@ -120,8 +124,11 @@ function playerUnloaded() {
 }
 
 function openSourceTray() {
-    document.getElementsByClassName('source-tray')[0].style.display = 'flex';
-    document.getElementsByClassName('source-tray')[0].classList.remove('hidden');
+	document.getElementsByClassName('source-tray')[0].style.display = 'flex';
+	setTimeout(() => {
+    	document.getElementsByClassName('source-tray')[0].classList.remove('hidden');
+	}, 10);
+
 
     setTimeout(() => {closeSourceTray()}, 5000);
 }

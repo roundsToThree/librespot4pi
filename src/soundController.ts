@@ -116,11 +116,15 @@ export async function moveRoomToInstance(roomName, instanceName) {
 	await moveSinkToInstance(roomName, instanceNumber);
 }
 
+export function instanceFromRoomName(roomName) {
+	return soundmap.findIndex(m => m.outputs.find(o => o.name == roomName) != null);
+}
+
 export async function moveSinkToInstance(roomName, instanceNumber) {
 	// Unbind sink from current instance
 
 	// Get the instance the room is in and unbind
-	const originalInstanceNumber = soundmap.findIndex(m => m.outputs.find(o => o.name == roomName) != null);
+	const originalInstanceNumber = instanceFromRoomName(roomName);
 	const room = soundmap[originalInstanceNumber].outputs.splice(soundmap[originalInstanceNumber].outputs.findIndex(o => o.name == roomName), 1)[0];
 
 	// Add to new instance number
