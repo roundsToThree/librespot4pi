@@ -163,14 +163,11 @@ then
 fi
 
 # Configure auto-login
-systemctl set-default multi-user.target
-        ln -fs /lib/systemd/system/getty@.service /etc/systemd/system/getty.target.wants/getty@tty1.service
-        cat > /etc/systemd/system/getty@tty1.service.d/autologin.conf << EOF
-[Service]
+sudo systemctl set-default multi-user.target
+sudo ln -fs /lib/systemd/system/getty@.service /etc/systemd/system/getty.target.wants/getty@tty1.service
+echo '[Service]
 ExecStart=
-ExecStart=-/sbin/agetty --autologin $USER --noclear %I \$TERM
-EOF
-        ;;
+ExecStart=-/sbin/agetty --autologin $USER --noclear %I \$TERM' | sudo tee -a  /etc/systemd/system/getty@tty1.service.d/autologin.conf
 
-echo 'Installation complete, If you are installing this as "Standalone" or "Server", ensure you modify "config.json" to reflect your configuration before starting.
+echo 'Installation complete, If you are installing this as "Standalone" or "Server", ensure you modify "src/config.json" to reflect your configuration before starting.
 Once you are ready, restart to put changes into effect'
