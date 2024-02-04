@@ -16,6 +16,9 @@ If you want an in-wall touchscreen, any compatible display will work\
 [ Processor ]\
 Any Raspberry Pi will work, however I've found the Pi 3 is about the minimum for more than 1 room\
 1GB Pis also work well as the headless host for 4 rooms and the in-wall screen, no need to get heaps of memory!\
+However, with the Pi 4, there is a limitation with the USB bus such that unless you also use the USB-C Port, you cannot exceed 3 or 4 DACs - This is not such an issue with the Pi 3.\
+
+Alternatively you can use a single core Celeron with 2GB of ram running Ubuntu and get excellent performance
 \
 [ DAC - Digital to Analog Converter ]\
 This allows the audio to be outputted from the pi, usually the built in audio should be disabled as its not very good.\
@@ -25,13 +28,15 @@ The official PI DAC HAT (over SPI) works perfectly but if you want to add more o
 > - Raspberry PI DAC +
 > - Generic USB Sound Card from eBay
 > - Genuine Apple USB C - 3.5mm Headphone Jack
+> - AB13X USB C to Headphone Jack  [Best value for quality]
 > 
-> **Note! mixing and matching DACs (more than about 3) can lead to stuttering, popping and silence as the Pi's sound server tries to resample for each different configuration.**
+> **Note! mixing and matching DACs (more than about 3) can lead to stuttering, popping and silence as the Pi's sound server tries to resample for each different configuration. Try to match all to the same bitdepth and sampling rate in software**
 
 \
 [ Amplifier ]\
 Whatever works for your DAC!\
-I use the XH-M543 Dual 50W/Mono 100W driver and its pretty good at only $8.50!\
+I use the XH-M543 (Class D) Dual 50W/Mono 100W driver and its pretty good at only $8.50!\
+There is also the XH-M180 (Class AB) which is a Quad 50W Mono / Dual Stereo (4 Channel) for around $40 which may be considered for higher fidelity setups.\
 You will need one of these per DAC to drive the speakers\
 \
 [ In-Wall Touch Screen ]\
@@ -50,6 +55,8 @@ But if you want to setup from scratch:
 - Edit `/src/config.json` to reflect your setup, the sink is a keyword to identify each USB/SPI sound card, use `pactl list sinks` to find the name of each and use an identifying keyword from the name
 - Launch with `npx ts-node src/app.ts` from the repo folder
 - If you want to run the screen, start a fullscreen webpage on the pi with the url in the next step (Arguments for chromium are towards the end of this readme)
+
+You can also change /etc/pulse/daemon.conf to set avoid resamplng and resampling to best quality
 
 ## Using the Web Interface
 Connect to ``http://localhost:5000?room=MyRoom`` where `MyRoom` is the name of your room in `config.json`.\
