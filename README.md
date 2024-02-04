@@ -18,7 +18,8 @@ Any Raspberry Pi will work, however I've found the Pi 3 is about the minimum for
 1GB Pis also work well as the headless host for 4 rooms and the in-wall screen, no need to get heaps of memory!\
 However, with the Pi 4, there is a limitation with the USB bus such that unless you also use the USB-C Port, you cannot exceed 3 or 4 DACs - This is not such an issue with the Pi 3.\
 
-Alternatively you can use a single core Celeron with 2GB of ram running Ubuntu and get excellent performance
+Alternatively you can use a single core Celeron with 2GB of ram running Ubuntu and get excellent performance, In my case a ThinkCentre M72e.\
+It still runs into the same USB Bandwidth limitation as the Pi but you can split a couble DACs into each of the 5 USB Ports onboard.\
 \
 [ DAC - Digital to Analog Converter ]\
 This allows the audio to be outputted from the pi, usually the built in audio should be disabled as its not very good.\
